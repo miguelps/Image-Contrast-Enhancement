@@ -1,26 +1,18 @@
-import numpy as np
 import matplotlib.pyplot as plt
-from skimage import exposure as ex
-import imageio
+import cv2
 import sys
 
 
 def he(img):
-    if len(img.shape) == 2:  # gray
-        outImg = ex.equalize_hist(img[:, :]) * 255
-    elif len(img.shape) == 3:  # RGB
-        outImg = np.zeros((img.shape[0], img.shape[1], 3))
-        for channel in range(img.shape[2]):
-            outImg[:, :, channel] = ex.equalize_hist(img[:, :, channel]) * 255
-
-    outImg[outImg > 255] = 255
-    outImg[outImg < 0] = 0
-    return outImg.astype(np.uint8)
+    img_yuv = cv2.cvtColor(img, cv2.COLOR_RGB2YUV)
+    img_yuv[:, :, 0] = cv2.equalizeHist(img_yuv[:, :, 0])
+    out = cv2.cvtColor(img_yuv, cv2.COLOR_YUV2RGB)
+    return out
 
 
 def main():
     img_name = sys.argv[1]
-    img = imageio.imread(img_name)
+    img = cv2.cvtColor(cv2.imread(img_name), cv2.COLOR_BGR2RGB)
     result = he(img)
     plt.imshow(result)
     plt.show()
